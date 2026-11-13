@@ -1,0 +1,229 @@
+<!-- MULAI KODE SIMULATOR GAYA ANTAR MOLEKUL (REVISI TOTAL) -->
+<div style="max-width: 100%; overflow-x: auto; padding: 10px 0; background-color: #0f172a; border-radius: 12px;">
+    <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #1e293b; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); text-align: center; width: fit-content; margin: 0 auto; color: white; position: relative;">
+        
+        <!-- Tombol Pause/Play -->
+        <button id="btn-toggle-mol" style="position: absolute; top: 15px; right: 15px; padding: 5px 10px; border-radius: 5px; border: none; cursor: pointer; background: #334155; color: white; font-size: 12px; z-index: 10;">Pause ⏸</button>
+
+        <h3 style="margin-top: 0; color: #e2e8f0; font-size: 20px;">Perbandingan Gaya Antar Molekul</h3>
+        
+        <div style="position: relative; display: inline-block; margin-top: 10px; width: 100%; max-width: 800px;">
+            <!-- Tambahkan style width & height eksplisit pada canvas -->
+            <canvas id="canvas-molekul" width="800" height="450" style="border-radius: 10px; background: radial-gradient(circle at center, #1e1e2f 0%, #0a0a0a 100%); display: block; width: 100%; height: auto; aspect-ratio: 800/450;"></canvas>
+            
+            <!-- Label Overlay -->
+            <div style="position: absolute; top: 20px; left: 20px; text-align: center; pointer-events: none;">
+                <div style="font-size: 24px; font-weight: bold; color: #fff;">HCl</div>
+                <div style="font-size: 12px; color: #a855f7; font-weight: bold; letter-spacing: 1px;">GAYA LONDON / DIPOL</div>
+            </div>
+            
+            <div style="position: absolute; top: 20px; right: 20px; text-align: center; pointer-events: none;">
+                <div style="font-size: 24px; font-weight: bold; color: #fff;">H<sub>2</sub>O</div>
+                <div style="font-size: 12px; color: #3b82f6; font-weight: bold; letter-spacing: 1px;">IKATAN HIDROGEN</div>
+            </div>
+
+            <!-- Teks Bawah -->
+            <div style="position: absolute; bottom: 20px; left: 20px; width: 160px; background: rgba(0,0,0,0.7); padding: 8px; border-radius: 8px; border: 1px solid #a855f7; pointer-events: none;">
+                <div style="font-size: 11px; color: #ddd;">Gaya antar molekul</div>
+                <div style="font-size: 12px; font-weight: bold; color: #a855f7;">LEMAH (LONDON)</div>
+            </div>
+
+            <div style="position: absolute; bottom: 20px; right: 20px; width: 160px; background: rgba(0,0,0,0.7); padding: 8px; border-radius: 8px; border: 1px solid #3b82f6; pointer-events: none;">
+                <div style="font-size: 11px; color: #ddd;">Ikatan Hidrogen</div>
+                <div style="font-size: 12px; font-weight: bold; color: #3b82f6;">LEBIH KUAT</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Membungkus semua kode dalam IIFE agar tidak bentrok dengan skrip lain di blog
+(function() {
+    // Menunggu sampai seluruh halaman blog selesai dimuat
+    window.addEventListener('load', function() {
+        
+        const canvasMol = document.getElementById('canvas-molekul');
+        if (!canvasMol) return; // Pengaman jika canvas tidak ditemukan
+        
+        const ctxMol = canvasMol.getContext('2d');
+        const btnToggle = document.getElementById('btn-toggle-mol');
+        
+        let isAnimating = true;
+        let timeMol = 0;
+
+        const colors = {
+            H: { inner: '#ffffff', outer: '#9ca3af', border: '#6b7280' },
+            Cl: { inner: '#86efac', outer: '#16a34a', border: '#14532d' },
+            O: { inner: '#fca5a5', outer: '#dc2626', border: '#7f1d1d' }
+        };
+
+        const radii = { H: 14, Cl: 32, O: 28 };
+
+        function drawAtom(x, y, type, offsetX = 0, offsetY = 0) {
+            const r = radii[type];
+            const c = colors[type];
+            
+            // Animasi getaran (jiggle)
+            let jX = Math.sin(timeMol * 0.05 + offsetX) * 2;
+            let jY = Math.cos(timeMol * 0.05 + offsetY) * 2;
+
+            let drawX = x + jX;
+            let drawY = y + jY;
+
+            let gradient = ctxMol.createRadialGradient(
+                drawX - r * 0.3, drawY - r * 0.3, r * 0.1,
+                drawX, drawY, r
+            );
+            gradient.addColorStop(0, c.inner);
+            gradient.addColorStop(1, c.outer);
+
+            ctxMol.beginPath();
+            ctxMol.arc(drawX, drawY, r, 0, Math.PI * 2);
+            ctxMol.fillStyle = gradient;
+            ctxMol.fill();
+            ctxMol.lineWidth = 2;
+            ctxMol.strokeStyle = c.border;
+            ctxMol.stroke();
+
+            // Teks Atom
+            ctxMol.fillStyle = (type === 'H') ? '#333' : '#fff';
+            ctxMol.font = `bold ${r}px Arial`;
+            ctxMol.textAlign = 'center';
+            ctxMol.textBaseline = 'middle';
+            ctxMol.fillText(type, drawX, drawY);
+            
+            return { x: drawX, y: drawY };
+        }
+
+        function drawBond(p1, p2, color, isStrong) {
+            ctxMol.beginPath();
+            ctxMol.setLineDash([6, 6]);
+            ctxMol.lineDashOffset = -timeMol * (isStrong ? 2 : 1);
+            ctxMol.moveTo(p1.x, p1.y);
+            ctxMol.lineTo(p2.x, p2.y);
+            ctxMol.strokeStyle = color;
+            ctxMol.lineWidth = isStrong ? 4 : 3;
+            
+            ctxMol.shadowBlur = 10;
+            ctxMol.shadowColor = color;
+            ctxMol.stroke();
+            
+            ctxMol.setLineDash([]);
+            ctxMol.shadowBlur = 0;
+        }
+
+        // Posisi Molekul (disesuaikan agar pas di tengah)
+        const hclMolecules = [
+            { x: 200, y: 130, angle: Math.PI * 0.1 },
+            { x: 300, y: 230, angle: Math.PI * 1.1 },
+            { x: 150, y: 290, angle: Math.PI * 0.9 },
+            { x: 280, y: 360, angle: Math.PI * 0.2 }
+        ];
+
+        const h2oMolecules = [
+            { x: 600, y: 160, angle: Math.PI * 0.2 },
+            { x: 520, y: 280, angle: Math.PI * 1.0 },
+            { x: 650, y: 360, angle: Math.PI * 0.8 }
+        ];
+
+        function drawHCl() {
+            let atoms = [];
+            hclMolecules.forEach((mol, i) => {
+                let isClLeft = (i % 2 === 0);
+                let dist = 45;
+                
+                let clX = mol.x + Math.cos(mol.angle + Math.PI/2) * (isClLeft ? -dist/2 : dist/2);
+                let clY = mol.y + Math.sin(mol.angle + Math.PI/2) * (isClLeft ? -dist/2 : dist/2);
+                let hX = mol.x + Math.cos(mol.angle + Math.PI/2) * (isClLeft ? dist/2 : -dist/2);
+                let hY = mol.y + Math.sin(mol.angle + Math.PI/2) * (isClLeft ? dist/2 : -dist/2);
+
+                // Ikatan Kovalen
+                ctxMol.beginPath();
+                ctxMol.moveTo(clX, clY);
+                ctxMol.lineTo(hX, hY);
+                ctxMol.strokeStyle = '#555';
+                ctxMol.lineWidth = 6;
+                ctxMol.stroke();
+
+                let clPos = drawAtom(clX, clY, 'Cl', i, 0);
+                let hPos = drawAtom(hX, hY, 'H', i, 1);
+                
+                atoms.push({ cl: clPos, h: hPos, index: i });
+            });
+
+            if(atoms.length >= 4) {
+                drawBond(atoms[1].cl, atoms[0].h, '#a855f7', false);
+                drawBond(atoms[2].cl, atoms[1].h, '#a855f7', false);
+                drawBond(atoms[3].cl, atoms[2].h, '#a855f7', false);
+            }
+        }
+
+        function drawH2O() {
+            let atoms = [];
+            h2oMolecules.forEach((mol, i) => {
+                let angle = mol.angle;
+                let oX = mol.x;
+                let oY = mol.y;
+                
+                let dist = 40;
+                let h1X = oX + Math.cos(angle - 0.8) * dist;
+                let h1Y = oY + Math.sin(angle - 0.8) * dist;
+                
+                let h2X = oX + Math.cos(angle + 0.8) * dist;
+                let h2Y = oY + Math.sin(angle + 0.8) * dist;
+
+                // Ikatan Kovalen
+                ctxMol.beginPath();
+                ctxMol.moveTo(h1X, h1Y);
+                ctxMol.lineTo(oX, oY);
+                ctxMol.lineTo(h2X, h2Y);
+                ctxMol.strokeStyle = '#555';
+                ctxMol.lineWidth = 6;
+                ctxMol.stroke();
+
+                let oPos = drawAtom(oX, oY, 'O', i, 0);
+                let h1Pos = drawAtom(h1X, h1Y, 'H', i, 1);
+                let h2Pos = drawAtom(h2X, h2Y, 'H', i, 2);
+                
+                atoms.push({ o: oPos, h1: h1Pos, h2: h2Pos });
+            });
+
+            if(atoms.length >= 3) {
+                drawBond(atoms[1].o, atoms[0].h1, '#3b82f6', true);
+                drawBond(atoms[2].o, atoms[0].h2, '#3b82f6', true);
+                drawBond(atoms[2].o, atoms[1].h1, '#3b82f6', true);
+            }
+        }
+
+        function animateMolecules() {
+            if (isAnimating) {
+                timeMol++;
+                ctxMol.clearRect(0, 0, canvasMol.width, canvasMol.height);
+
+                // Garis pembatas tengah
+                ctxMol.beginPath();
+                ctxMol.moveTo(400, 50);
+                ctxMol.lineTo(400, 400);
+                ctxMol.strokeStyle = 'rgba(255,255,255,0.05)';
+                ctxMol.lineWidth = 2;
+                ctxMol.setLineDash([10, 10]);
+                ctxMol.stroke();
+                ctxMol.setLineDash([]);
+
+                drawHCl();
+                drawH2O();
+            }
+            requestAnimationFrame(animateMolecules);
+        }
+
+        btnToggle.addEventListener('click', function() {
+            isAnimating = !isAnimating;
+            btnToggle.innerText = isAnimating ? 'Pause ⏸' : 'Play ▶';
+        });
+
+        // Mulai animasi
+        animateMolecules();
+    });
+})();
+</script>
+<!-- SELESAI KODE SIMULATOR GAYA ANTAR MOLEKUL -->
