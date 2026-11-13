@@ -1,0 +1,193 @@
+<!-- MULAI KODE SIMULATOR IKATAN LOGAM (FIX SUPERSSCRIPT) -->
+<div style="max-width: 100%; overflow-x: auto; padding: 10px 0;">
+    <div class="container" style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); text-align: center; width: fit-content; margin: 0 auto;">
+        <h3 style="margin-top: 0; color: #333;">Simulator Ikatan Logam</h3>
+        <div class="controls" style="margin-bottom: 15px;">
+            <label for="metalSelect" style="font-weight: bold;">Pilih Logam: </label>
+            <select id="metalSelect" style="padding: 8px 12px; font-size: 16px; border-radius: 6px; border: 1px solid #ccc; cursor: pointer;">
+                <option value="Mg">Magnesium (Mg)</option>
+                <option value="Fe">Besi (Fe)</option>
+            </select>
+        </div>
+        
+        <div class="canvas-wrapper" style="position: relative; display: inline-block;">
+            <canvas id="simCanvas" width="700" height="350" style="border-radius: 10px; background-color: #fafafa; display: block; max-width: 100%;"></canvas>
+            
+            <!-- Keterangan -->
+            <div id="line-ion" style="position: absolute; top: 130px; left: 490px; width: 50px; border-top: 1px solid #333; pointer-events: none;"></div>
+            <div id="label-ion" style="position: absolute; top: 120px; left: 540px; width: 150px; font-size: 13px; color: #333; text-align: left; pointer-events: none; line-height: 1.2;">
+                Ion <span id="ion-text-label" style="font-weight: bold; display: block;">Mg<sup>2+</sup></span> (kation logam)
+            </div>
+            
+            <div id="line-elektron" style="position: absolute; top: 220px; left: 490px; width: 50px; border-top: 1px solid #333; pointer-events: none;"></div>
+            <div id="label-elektron" style="position: absolute; top: 210px; left: 540px; width: 150px; font-size: 13px; color: #333; text-align: left; pointer-events: none; line-height: 1.2;">
+                Elektron <span style="font-weight: bold; display: block;">terdelokalisasi</span> (lautan elektron)
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const canvas = document.getElementById('simCanvas');
+    const ctx = canvas.getContext('2d');
+    const select = document.getElementById('metalSelect');
+    const ionLabelText = document.getElementById('ion-text-label');
+
+    const box = { x: 30, y: 30, w: 480, h: 290 };
+
+    const metals = {
+        Mg: {
+            name: 'Mg', symbol: 'Mg', charge: '2+', 
+            ionColorInner: '#ffffff', ionColorOuter: '#a0a0a0', ionBorder: '#808080',
+            electronColor: '#1e90ff', bgColor: 'rgba(30, 144, 255, 0.15)', bgBorder: 'rgba(30, 144, 255, 0.4)'
+        },
+        Fe: {
+            name: 'Fe', symbol: 'Fe', charge: '2+', 
+            ionColorInner: '#ffd700', ionColorOuter: '#b8860b', ionBorder: '#8b6508',
+            electronColor: '#ff3333', bgColor: 'rgba(255, 51, 51, 0.15)', bgBorder: 'rgba(255, 51, 51, 0.4)'
+        }
+    };
+
+    let currentMetal = metals.Mg;
+    let electrons = [];
+    const ionRadius = 22;
+    const electronRadius = 4;
+    const cols = 6, rows = 3;
+    let ions = [];
+
+    class Ion {
+        constructor(x, y) { 
+            this.x = x; 
+            this.y = y; 
+            this.radius = ionRadius; 
+            this.angle = Math.random() * Math.PI * 2; 
+            this.spinSpeed = (Math.random() - 0.5) * 0.04; 
+        }
+        
+        draw() {
+            this.angle += this.spinSpeed;
+
+            // 1. Gambar Bola 3D (Berputar)
+            ctx.save(); 
+            ctx.translate(this.x, this.y); 
+            ctx.rotate(this.angle); 
+
+            let gradient = ctx.createRadialGradient(
+                -this.radius * 0.4, -this.radius * 0.4, this.radius * 0.1, 
+                0, 0, this.radius
+            );
+            gradient.addColorStop(0, currentMetal.ionColorInner);
+            gradient.addColorStop(1, currentMetal.ionColorOuter);
+            
+            ctx.beginPath(); 
+            ctx.arc(0, 0, this.radius, 0, Math.PI * 2); 
+            ctx.fillStyle = gradient; 
+            ctx.fill(); 
+            ctx.lineWidth = 2; 
+            ctx.strokeStyle = currentMetal.ionBorder; 
+            ctx.stroke();
+            
+            ctx.restore(); 
+
+            // 2. Gambar Teks (Menggunakan Canvas Path, anti-error HTML)
+            ctx.save();
+            ctx.translate(this.x, this.y);
+            ctx.fillStyle = currentMetal.name === 'Mg' ? '#333' : '#fff'; 
+            ctx.textBaseline = 'middle';
+
+            // Gambar Simbol (Mg/Fe) - digeser sedikit ke kiri
+            ctx.textAlign = 'right';
+            ctx.font = 'bold 13px Arial';
+            ctx.fillText(currentMetal.symbol, -1, 0);
+
+            // Gambar Muatan (2+) - ukuran lebih kecil, posisi lebih tinggi
+            ctx.textAlign = 'left';
+            ctx.font = 'bold 9px Arial';
+            ctx.fillText(currentMetal.charge, 1, -6); 
+
+            ctx.restore();
+        }
+    }
+
+    class Electron {
+        constructor() {
+            let pad = electronRadius + 2;
+            this.x = box.x + pad + Math.random() * (box.w - 2 * pad);
+            this.y = box.y + pad + Math.random() * (box.h - 2 * pad);
+            this.vx = (Math.random() - 0.5) * 2; 
+            this.vy = (Math.random() - 0.5) * 2; 
+            this.radius = electronRadius;
+        }
+        
+        update() {
+            this.x += this.vx; 
+            this.y += this.vy;
+            
+            let pad = this.radius + 2;
+            if (this.x < box.x + pad) { this.x = box.x + pad; this.vx *= -1; }
+            else if (this.x > box.x + box.w - pad) { this.x = box.x + box.w - pad; this.vx *= -1; }
+            
+            if (this.y < box.y + pad) { this.y = box.y + pad; this.vy *= -1; }
+            else if (this.y > box.y + box.h - pad) { this.y = box.y + box.h - pad; this.vy *= -1; }
+        }
+        
+        draw() {
+            ctx.beginPath(); 
+            ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2); 
+            ctx.fillStyle = currentMetal.electronColor; 
+            ctx.shadowBlur = 5; 
+            ctx.shadowColor = currentMetal.electronColor; 
+            ctx.fill(); 
+            ctx.shadowBlur = 0;
+        }
+    }
+
+    function initSimulation() {
+        ions = []; electrons = [];
+        const startX = 80, startY = 80, spacingX = 70, spacingY = 90;
+        
+        for (let r = 0; r < rows; r++) {
+            for (let c = 0; c < cols; c++) {
+                let offsetX = (r % 2 === 0) ? 0 : 10; 
+                ions.push(new Ion(startX + c * spacingX + offsetX, startY + r * spacingY));
+            }
+        }
+        
+        for (let i = 0; i < 120; i++) { electrons.push(new Electron()); }
+    }
+
+    function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        ctx.beginPath(); 
+        ctx.roundRect(box.x, box.y, box.w, box.h, 20); 
+        ctx.fillStyle = currentMetal.bgColor; 
+        ctx.fill(); 
+        ctx.lineWidth = 2; 
+        ctx.strokeStyle = currentMetal.bgBorder; 
+        ctx.stroke();
+        
+        electrons.forEach(electron => { electron.update(); electron.draw(); });
+        ions.forEach(ion => ion.draw());
+        
+        requestAnimationFrame(animate);
+    }
+
+    select.addEventListener('change', () => {
+        currentMetal = metals[select.value];
+        // Gunakan innerHTML dan tag <sup> untuk label
+        ionLabelText.innerHTML = currentMetal.symbol + '<sup>' + currentMetal.charge + '</sup>'; 
+        initSimulation();
+    });
+
+    initSimulation();
+    animate();
+
+    if (!CanvasRenderingContext2D.prototype.roundRect) {
+        CanvasRenderingContext2D.prototype.roundRect = function(x, y, w, h, r) {
+            if (w < 2 * r) r = w / 2; if (h < 2 * r) r = h / 2;
+            this.beginPath(); this.moveTo(x + r, y); this.arcTo(x + w, y, x + w, y + h, r); this.arcTo(x + w, y + h, x, y + h, r); this.arcTo(x, y + h, x, y, r); this.arcTo(x, y, x + w, y, r); this.closePath(); return this;
+        };
+    }
+</script>
+<!-- SELESAI KODE SIMULATOR IKATAN LOGAM -->
