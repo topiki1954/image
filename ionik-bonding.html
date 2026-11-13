@@ -1,0 +1,179 @@
+<div style="font-family: sans-serif; max-width: 650px; margin: 20px auto; padding: 15px; border: 1px solid #ddd; border-radius: 8px; background: #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+  <h3 style="margin-top: 0; text-align: center; color: #006644;">Simulator Visualisasi Ikatan Ion & Rumus Senyawa</h3>
+  
+  <!-- Area Visualisasi Utama -->
+  <div id="visArea" style="height: 220px; background: #f9f9f9; border: 1px dashed #ccc; border-radius: 6px; position: relative; margin-bottom: 15px; overflow: hidden;">
+    <!-- Elemen akan di-generate secara dinamis oleh JavaScript -->
+  </div>
+
+  <!-- Status Penjelasan -->
+  <div style="background: #eef7ff; padding: 12px; border-left: 4px solid #006644; border-radius: 4px; margin-bottom: 15px; min-height: 80px; font-size: 14px; line-height: 1.5; color: #333;">
+    <strong>Status:</strong> <span id="simStatus">Silakan pilih kombinasi unsur di bawah untuk memulai simulasi serah terima elektron.</span>
+  </div>
+
+  <!-- Tombol Kontrol -->
+  <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 8px;">
+    <button onclick="setNaCl()" style="padding: 10px; background: #4b5563; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: bold;">Na + Cl</button>
+    <button onclick="setNa2O()" style="padding: 10px; background: #4b5563; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: bold;">Na + O</button>
+    <button onclick="setAl2O3()" style="padding: 10px; background: #4b5563; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: bold;">Al + O</button>
+  </div>
+  <div style="display: grid; grid-template-columns: 1fr; gap: 8px;">
+    <button onclick="resetSim()" style="padding: 10px; background: #dc2626; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: bold;">Reset</button>
+  </div>
+</div>
+
+<script>
+  const visArea = document.getElementById('visArea');
+  const status = document.getElementById('simStatus');
+  let timeouts = [];
+
+  // Membersihkan area dan timer sebelum animasi baru
+  function resetSim() {
+    timeouts.forEach(clearTimeout);
+    timeouts = [];
+    visArea.innerHTML = '';
+    status.innerHTML = "Silakan pilih kombinasi unsur di atas untuk memulai simulasi serah terima elektron.";
+  }
+
+  // Fungsi pembantu untuk membuat atom
+  function createAtom(text, x, y, type) {
+    const el = document.createElement('div');
+    el.innerHTML = text;
+    // Logam biru, nonlogam hijau
+    const bgColor = type === 'metal' ? '#3498db' : '#2ecc71';
+    el.style.cssText = `position: absolute; left: ${x}; top: ${y}; transform: translate(-50%, -50%); width: 45px; height: 45px; background: ${bgColor}; color: white; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-weight: bold; font-size: 14px; transition: all 1s ease-in-out; z-index: 2; text-align: center; line-height: 1.2;`;
+    visArea.appendChild(el);
+    return el;
+  }
+
+  // Fungsi pembantu untuk membuat elektron
+  function createElectron(startX, startY) {
+    const el = document.createElement('div');
+    el.style.cssText = `position: absolute; left: ${startX}; top: ${startY}; transform: translate(-50%, -50%); width: 8px; height: 8px; background: #e74c3c; border-radius: 50%; transition: all 1s ease-in-out; z-index: 3;`;
+    visArea.appendChild(el);
+    return el;
+  }
+
+  // Fungsi pembantu untuk memunculkan teks rumus
+  function showFormula(text) {
+    const el = document.createElement('div');
+    el.innerHTML = text;
+    el.style.cssText = `position: absolute; left: 50%; bottom: 10px; transform: translateX(-50%); font-size: 18px; font-weight: bold; color: #006644; opacity: 0; transition: opacity 1s; background: rgba(255,255,255,0.8); padding: 2px 10px; border-radius: 4px;`;
+    visArea.appendChild(el);
+    setTimeout(() => el.style.opacity = "1", 100);
+  }
+
+  function setNaCl() {
+    resetSim();
+    const na = createAtom('Na', '20%', '50%', 'metal');
+    const cl = createAtom('Cl', '80%', '50%', 'nonmetal');
+    const e = createElectron('26%', '50%');
+
+    status.innerHTML = "<strong>Tahap 1:</strong> Logam Na memiliki 1 elektron valensi. Nonlogam Cl membutuhkan 1 elektron untuk stabil (oktet).";
+
+    timeouts.push(setTimeout(() => {
+      e.style.left = '74%';
+      status.innerHTML = "<strong>Tahap 2:</strong> Terjadi serah terima elektron. 1 elektron dilepas oleh Na dan ditangkap oleh Cl.";
+    }, 1500));
+
+    timeouts.push(setTimeout(() => {
+      e.style.opacity = '0';
+      na.innerHTML = 'Na<sup>+</sup>';
+      cl.innerHTML = 'Cl<sup>-</sup>';
+      na.style.left = '42%';
+      cl.style.left = '58%';
+      showFormula("Rumus Senyawa: NaCl");
+      status.innerHTML = "<strong>Tahap 3:</strong> Terbentuk ion Na⁺ dan Cl⁻ yang saling tarik-menarik. Karena rasio muatan 1:1, rumus senyawanya adalah <strong>NaCl</strong> (Natrium Klorida).";
+    }, 3000));
+  }
+
+  function setNa2O() {
+    resetSim();
+    const na1 = createAtom('Na', '20%', '30%', 'metal');
+    const na2 = createAtom('Na', '20%', '70%', 'metal');
+    const o = createAtom('O', '80%', '50%', 'nonmetal');
+    
+    const e1 = createElectron('26%', '30%');
+    const e2 = createElectron('26%', '70%');
+
+    status.innerHTML = "<strong>Tahap 1:</strong> Atom O membutuhkan 2 elektron. Karena setiap Na hanya bisa melepas 1 elektron, dibutuhkan 2 atom Na.";
+
+    timeouts.push(setTimeout(() => {
+      e1.style.left = '76%'; e1.style.top = '45%';
+      e2.style.left = '76%'; e2.style.top = '55%';
+      status.innerHTML = "<strong>Tahap 2:</strong> Dua atom Na masing-masing menyerahkan 1 elektronnya kepada satu atom O.";
+    }, 1500));
+
+    timeouts.push(setTimeout(() => {
+      e1.style.opacity = '0'; e2.style.opacity = '0';
+      na1.innerHTML = 'Na<sup>+</sup>';
+      na2.innerHTML = 'Na<sup>+</sup>';
+      o.innerHTML = 'O<sup>2-</sup>';
+      
+      na1.style.left = '40%'; na1.style.top = '35%';
+      na2.style.left = '40%'; na2.style.top = '65%';
+      o.style.left = '58%'; o.style.top = '50%';
+      
+      showFormula("Rumus Senyawa: Na<sub>2</sub>O");
+      status.innerHTML = "<strong>Tahap 3:</strong> Terbentuk dua ion Na⁺ dan satu ion O²⁻. Rasio kation dan anion 2:1 menghasilkan rumus <strong>Na₂O</strong> (Natrium Oksida).";
+    }, 3000));
+  }
+
+  function setAl2O3() {
+    resetSim();
+    const al1 = createAtom('Al', '15%', '35%', 'metal');
+    const al2 = createAtom('Al', '15%', '65%', 'metal');
+    
+    const o1 = createAtom('O', '85%', '25%', 'nonmetal');
+    const o2 = createAtom('O', '85%', '50%', 'nonmetal');
+    const o3 = createAtom('O', '85%', '75%', 'nonmetal');
+
+    // 3 elektron dari Al pertama
+    const e1_1 = createElectron('21%', '31%');
+    const e1_2 = createElectron('21%', '35%');
+    const e1_3 = createElectron('21%', '39%');
+    
+    // 3 elektron dari Al kedua
+    const e2_1 = createElectron('21%', '61%');
+    const e2_2 = createElectron('21%', '65%');
+    const e2_3 = createElectron('21%', '69%');
+
+    status.innerHTML = "<strong>Tahap 1:</strong> Setiap atom Al melepas 3 elektron. Setiap atom O butuh 2 elektron. Untuk menyeimbangkan, butuh 2 Al (total 6 e⁻) dan 3 O (total butuh 6 e⁻).";
+
+    timeouts.push(setTimeout(() => {
+      // 2 elektron dari Al1 ke O1
+      e1_1.style.left = '79%'; e1_1.style.top = '22%';
+      e1_2.style.left = '79%'; e1_2.style.top = '28%';
+      // 1 elektron dari Al1 ke O2
+      e1_3.style.left = '79%'; e1_3.style.top = '47%';
+      
+      // 1 elektron dari Al2 ke O2
+      e2_1.style.left = '79%'; e2_1.style.top = '53%';
+      // 2 elektron dari Al2 ke O3
+      e2_2.style.left = '79%'; e2_2.style.top = '72%';
+      e2_3.style.left = '79%'; e2_3.style.top = '78%';
+      
+      status.innerHTML = "<strong>Tahap 2:</strong> 6 elektron ditransfer silang secara merata dari atom-atom Al agar semua atom O mencapai konfigurasi oktet.";
+    }, 2000));
+
+    timeouts.push(setTimeout(() => {
+      [e1_1, e1_2, e1_3, e2_1, e2_2, e2_3].forEach(e => e.style.opacity = '0');
+      
+      al1.innerHTML = 'Al<sup>3+</sup>';
+      al2.innerHTML = 'Al<sup>3+</sup>';
+      o1.innerHTML = 'O<sup>2-</sup>';
+      o2.innerHTML = 'O<sup>2-</sup>';
+      o3.innerHTML = 'O<sup>2-</sup>';
+      
+      al1.style.left = '42%'; al1.style.top = '35%';
+      al2.style.left = '42%'; al2.style.top = '65%';
+      
+      o1.style.left = '58%'; o1.style.top = '25%';
+      o2.style.left = '58%'; o2.style.top = '50%';
+      o3.style.left = '58%'; o3.style.top = '75%';
+      
+      showFormula("Rumus Senyawa: Al<sub>2</sub>O<sub>3</sub>");
+      status.innerHTML = "<strong>Tahap 3:</strong> Terbentuk ion Al³⁺ dan O²⁻. Rasio persilangan muatan 2:3 menghasilkan molekul stabil dengan rumus <strong>Al₂O₃</strong> (Aluminium Oksida).";
+    }, 4500));
+  }
+</script>
