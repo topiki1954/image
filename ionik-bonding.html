@@ -1,33 +1,155 @@
-<div style="font-family: sans-serif; max-width: 650px; margin: 20px auto; padding: 15px; border: 1px solid #ddd; border-radius: 8px; background: #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
-  <h3 style="margin-top: 0; text-align: center; color: #006644;">Simulator Visualisasi Ikatan Ion & Rumus Senyawa</h3>
+<div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 680px; margin: 20px auto; padding: 18px; border: 1px solid #ddd; border-radius: 10px; background: #fff; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
+  <h3 style="margin-top: 0; text-align: center; color: #006644;">Simulator Ikatan Ion & Struktur Lewis</h3>
   
   <!-- Area Visualisasi Utama -->
-  <div id="visArea" style="height: 220px; background: #f9f9f9; border: 1px dashed #ccc; border-radius: 6px; position: relative; margin-bottom: 15px; overflow: hidden;">
+  <div id="visArea" style="height: 270px; background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 8px; position: relative; margin-bottom: 15px; overflow: hidden;">
     <!-- Elemen akan di-generate secara dinamis oleh JavaScript -->
   </div>
 
   <!-- Status Penjelasan -->
-  <div style="background: #eef7ff; padding: 12px; border-left: 4px solid #006644; border-radius: 4px; margin-bottom: 15px; min-height: 80px; font-size: 14px; line-height: 1.5; color: #333;">
-    <strong>Status:</strong> <span id="simStatus">Silakan pilih kombinasi unsur di bawah untuk memulai simulasi serah terima elektron.</span>
+  <div style="background: #eef7ff; padding: 12px 15px; border-left: 4px solid #006644; border-radius: 4px; margin-bottom: 15px; min-height: 75px; font-size: 14px; line-height: 1.5; color: #1e293b;">
+    <strong>Status:</strong> <span id="simStatus">Silakan pilih kombinasi unsur di bawah untuk memulai simulasi serah terima elektron hingga terbentuk Struktur Lewis.</span>
   </div>
 
   <!-- Tombol Kontrol -->
   <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 8px;">
-    <button onclick="setNaCl()" style="padding: 10px; background: #4b5563; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: bold;">Na + Cl</button>
-    <button onclick="setNa2O()" style="padding: 10px; background: #4b5563; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: bold;">Na + O</button>
-    <button onclick="setAl2O3()" style="padding: 10px; background: #4b5563; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: bold;">Al + O</button>
+    <button onclick="setNaCl()" style="padding: 10px; background: #334155; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 13px; font-weight: bold; transition: 0.2s;">Na + Cl (NaCl)</button>
+    <button onclick="setNa2O()" style="padding: 10px; background: #334155; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 13px; font-weight: bold; transition: 0.2s;">Na + O (Na₂O)</button>
+    <button onclick="setAl2O3()" style="padding: 10px; background: #334155; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 13px; font-weight: bold; transition: 0.2s;">Al + O (Al₂O₃)</button>
   </div>
   <div style="display: grid; grid-template-columns: 1fr; gap: 8px;">
-    <button onclick="resetSim()" style="padding: 10px; background: #dc2626; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: bold;">Reset</button>
+    <button onclick="resetSim()" style="padding: 9px; background: #dc2626; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 13px; font-weight: bold;">Reset Simulasi</button>
   </div>
 </div>
+
+<style>
+  /* Styling Khusus Struktur Lewis */
+  .lewis-container {
+    position: absolute;
+    top: 44%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.9);
+    opacity: 0;
+    transition: all 0.8s ease-out;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    background: #ffffff;
+    padding: 16px 24px;
+    border-radius: 10px;
+    border: 1.5px solid #cbd5e1;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.06);
+    z-index: 10;
+  }
+  .lewis-container.show {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  .lewis-col {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    align-items: center;
+  }
+  .lewis-cation {
+    font-family: 'Times New Roman', serif;
+    font-size: 24px;
+    font-weight: bold;
+    color: #1d4ed8;
+    padding: 4px 8px;
+  }
+  .lewis-cation sup {
+    font-size: 15px;
+  }
+  .lewis-anion-wrap {
+    display: inline-flex;
+    align-items: flex-start;
+  }
+ .lewis-bracket {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 10px;
+    position: relative;
+  }
+  /* Kurung siku kiri [ */
+  .lewis-bracket::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 7px;
+    border-left: 2.5px solid #0f172a;
+    border-top: 2.5px solid #0f172a;
+    border-bottom: 2.5px solid #0f172a;
+  }
+  /* Kurung siku kanan ] */
+  .lewis-bracket::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 7px;
+    border-right: 2.5px solid #0f172a;
+    border-top: 2.5px solid #0f172a;
+    border-bottom: 2.5px solid #0f172a;
+  }
+  .lewis-bracket::after {
+    bottom: 0;
+    border-bottom: 2.5px solid #0f172a;
+    background: linear-gradient(to right, transparent 6px, #ffffff 6px, #ffffff calc(100% - 6px), transparent calc(100% - 6px));
+  }
+  .lewis-octet-grid {
+    display: grid;
+    grid-template-columns: 12px 26px 12px;
+    grid-template-rows: 12px 26px 12px;
+    align-items: center;
+    justify-items: center;
+    font-family: 'Times New Roman', serif;
+  }
+  .lewis-symbol {
+    grid-column: 2;
+    grid-row: 2;
+    font-size: 22px;
+    font-weight: bold;
+    color: #047857;
+  }
+  .dot-top { grid-column: 2; grid-row: 1; font-size: 13px; letter-spacing: 2px; line-height: 1; }
+  .dot-bottom { grid-column: 2; grid-row: 3; font-size: 13px; letter-spacing: 2px; line-height: 1; }
+  .dot-left { grid-column: 1; grid-row: 2; font-size: 13px; line-height: 0.75; display: flex; flex-direction: column; }
+  .dot-right { grid-column: 3; grid-row: 2; font-size: 13px; line-height: 0.75; display: flex; flex-direction: column; }
+  
+  .e-orig { color: #059669; font-weight: bold; } /* Elektron asli nonlogam (•) */
+  .e-gain { color: #dc2626; font-weight: bold; } /* Elektron dari logam (×) */
+  
+  .lewis-charge {
+    font-family: 'Times New Roman', serif;
+    font-size: 16px;
+    font-weight: bold;
+    color: #047857;
+    margin-left: 2px;
+    margin-top: -4px;
+  }
+  .lewis-legend {
+    position: absolute;
+    top: 8px;
+    right: 12px;
+    font-size: 11px;
+    color: #475569;
+    background: rgba(255,255,255,0.9);
+    padding: 3px 8px;
+    border-radius: 4px;
+    border: 1px solid #e2e8f0;
+  }
+</style>
 
 <script>
   const visArea = document.getElementById('visArea');
   const status = document.getElementById('simStatus');
   let timeouts = [];
 
-  // Membersihkan area dan timer sebelum animasi baru
   function resetSim() {
     timeouts.forEach(clearTimeout);
     timeouts = [];
@@ -35,145 +157,190 @@
     status.innerHTML = "Silakan pilih kombinasi unsur di atas untuk memulai simulasi serah terima elektron.";
   }
 
-  // Fungsi pembantu untuk membuat atom
-  function createAtom(text, x, y, type) {
+  // Membuat bola atom + indikator elektron valensi awal
+  function createAtom(symbol, x, y, type, valenceCount) {
     const el = document.createElement('div');
-    el.innerHTML = text;
-    // Logam biru, nonlogam hijau
-    const bgColor = type === 'metal' ? '#3498db' : '#2ecc71';
-    el.style.cssText = `position: absolute; left: ${x}; top: ${y}; transform: translate(-50%, -50%); width: 45px; height: 45px; background: ${bgColor}; color: white; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-weight: bold; font-size: 14px; transition: all 1s ease-in-out; z-index: 2; text-align: center; line-height: 1.2;`;
+    const bgColor = type === 'metal' ? '#2563eb' : '#059669';
+    el.style.cssText = `position: absolute; left: ${x}; top: ${y}; transform: translate(-50%, -50%); width: 46px; height: 46px; background: ${bgColor}; color: white; border-radius: 50%; display: flex; flex-direction: column; justify-content: center; align-items: center; font-weight: bold; font-size: 15px; transition: all 0.9s ease-in-out; z-index: 2; box-shadow: 0 2px 6px rgba(0,0,0,0.15);`;
+    el.innerHTML = `<span>${symbol}</span><span style="font-size: 9px; font-weight: normal; opacity: 0.9;">(${valenceCount}e⁻)</span>`;
     visArea.appendChild(el);
     return el;
   }
 
-  // Fungsi pembantu untuk membuat elektron
+  // Membuat elektron yang bergerak
   function createElectron(startX, startY) {
     const el = document.createElement('div');
-    el.style.cssText = `position: absolute; left: ${startX}; top: ${startY}; transform: translate(-50%, -50%); width: 8px; height: 8px; background: #e74c3c; border-radius: 50%; transition: all 1s ease-in-out; z-index: 3;`;
+    el.style.cssText = `position: absolute; left: ${startX}; top: ${startY}; transform: translate(-50%, -50%); width: 9px; height: 9px; background: #dc2626; border: 1.5px solid #fff; border-radius: 50%; transition: all 1.1s ease-in-out; z-index: 3;`;
     visArea.appendChild(el);
     return el;
   }
 
-  // Fungsi pembantu untuk memunculkan teks rumus
-  function showFormula(text) {
-    const el = document.createElement('div');
-    el.innerHTML = text;
-    el.style.cssText = `position: absolute; left: 50%; bottom: 10px; transform: translateX(-50%); font-size: 18px; font-weight: bold; color: #006644; opacity: 0; transition: opacity 1s; background: rgba(255,255,255,0.8); padding: 2px 10px; border-radius: 4px;`;
-    visArea.appendChild(el);
-    setTimeout(() => el.style.opacity = "1", 100);
+  // Helper membuat HTML struktur anion [ :X: ]^n- dengan elektron asal (•) dan elektron transfer (×)
+  function buildAnionLewis(symbol, charge, gainedCount) {
+    // 8 posisi elektron (atas 2, bawah 2, kiri 2, kanan 2)
+    // Elektron transfer (×) ditempatkan pada slot yang kosong sebelumnya
+    let slots = [
+      '<span class="e-orig">•</span>', '<span class="e-orig">•</span>', // top
+      '<span class="e-orig">•</span>', '<span class="e-orig">•</span>', // bottom
+      '<span class="e-orig">•</span>', '<span class="e-orig">•</span>', // left
+      '<span class="e-orig">•</span>', '<span class="e-orig">•</span>'  // right
+    ];
+    
+    // Ganti slot terakhir sesuai jumlah elektron yang diterima menjadi tanda silang merah (×)
+    if (gainedCount >= 1) slots[7] = '<span class="e-gain">×</span>';
+    if (gainedCount >= 2) slots[5] = '<span class="e-gain">×</span>';
+
+    return `
+      <div class="lewis-anion-wrap">
+        <div class="lewis-bracket">
+          <div class="lewis-octet-grid">
+            <div class="dot-top">${slots[0]}${slots[1]}</div>
+            <div class="dot-left"><span>${slots[4]}</span><span>${slots[5]}</span></div>
+            <div class="lewis-symbol">${symbol}</div>
+            <div class="dot-right"><span>${slots[6]}</span><span>${slots[7]}</span></div>
+            <div class="dot-bottom">${slots[2]}${slots[3]}</div>
+          </div>
+        </div>
+        <div class="lewis-charge">${charge}</div>
+      </div>
+    `;
   }
 
+  // Menampilkan Struktur Lewis Akhir & Rumus Senyawa
+  function showLewisResult(lewisHTML, formulaHTML, elementsToFade) {
+    // Pudarkan bola atom awal agar transisi ke struktur Lewis mulus
+    elementsToFade.forEach(el => {
+      el.style.opacity = '0';
+      el.style.transform = 'translate(-50%, -50%) scale(0.7)';
+    });
+
+    // Tambahkan legenda elektron
+    const legend = document.createElement('div');
+    legend.className = 'lewis-legend';
+    legend.innerHTML = `<span class="e-orig">•</span> e⁻ valensi nonlogam &nbsp;|&nbsp; <span class="e-gain">×</span> e⁻ dari logam`;
+    visArea.appendChild(legend);
+
+    // Munculkan kotak Struktur Lewis
+    const container = document.createElement('div');
+    container.className = 'lewis-container';
+    container.innerHTML = lewisHTML;
+    visArea.appendChild(container);
+
+    // Munculkan label rumus di bawah
+    const label = document.createElement('div');
+    label.innerHTML = formulaHTML;
+    label.style.cssText = `position: absolute; left: 50%; bottom: 10px; transform: translateX(-50%); font-size: 16px; font-weight: bold; color: #006644; opacity: 0; transition: opacity 0.8s; background: #ecfdf5; border: 1px solid #a7f3d0; padding: 3px 14px; border-radius: 20px; white-space: nowrap;`;
+    visArea.appendChild(label);
+
+    setTimeout(() => {
+      container.classList.add('show');
+      label.style.opacity = '1';
+    }, 150);
+  }
+
+  // 1. SIMULASI NaCl
   function setNaCl() {
     resetSim();
-    const na = createAtom('Na', '20%', '50%', 'metal');
-    const cl = createAtom('Cl', '80%', '50%', 'nonmetal');
-    const e = createElectron('26%', '50%');
+    const na = createAtom('Na', '22%', '50%', 'metal', 1);
+    const cl = createAtom('Cl', '78%', '50%', 'nonmetal', 7);
+    const e = createElectron('28%', '50%');
 
-    status.innerHTML = "<strong>Tahap 1:</strong> Logam Na memiliki 1 elektron valensi. Nonlogam Cl membutuhkan 1 elektron untuk stabil (oktet).";
+    status.innerHTML = "<strong>Tahap 1 (Konfigurasi Awal):</strong> Atom Na memiliki 1 elektron valensi, sedangkan atom Cl memiliki 7 elektron valensi (kurang 1 untuk oktet).";
 
     timeouts.push(setTimeout(() => {
-      e.style.left = '74%';
-      status.innerHTML = "<strong>Tahap 2:</strong> Terjadi serah terima elektron. 1 elektron dilepas oleh Na dan ditangkap oleh Cl.";
-    }, 1500));
+      e.style.left = '72%';
+      status.innerHTML = "<strong>Tahap 2 (Serah Terima Elektron):</strong> Na melepaskan 1 elektron valensinya dan ditangkap oleh atom Cl.";
+    }, 1600));
 
     timeouts.push(setTimeout(() => {
       e.style.opacity = '0';
-      na.innerHTML = 'Na<sup>+</sup>';
-      cl.innerHTML = 'Cl<sup>-</sup>';
-      na.style.left = '42%';
-      cl.style.left = '58%';
-      showFormula("Rumus Senyawa: NaCl");
-      status.innerHTML = "<strong>Tahap 3:</strong> Terbentuk ion Na⁺ dan Cl⁻ yang saling tarik-menarik. Karena rasio muatan 1:1, rumus senyawanya adalah <strong>NaCl</strong> (Natrium Klorida).";
-    }, 3000));
+      const lewisHTML = `
+        <div class="lewis-cation">Na<sup>+</sup></div>
+        ${buildAnionLewis('Cl', '−', 1)}
+      `;
+      showLewisResult(lewisHTML, "Struktur Lewis & Rumus Senyawa: NaCl", [na, cl]);
+      status.innerHTML = "<strong>Tahap 3 (Struktur Lewis Ikatan Ion):</strong> Terbentuk kation <strong>Na⁺</strong> dan anion <strong>[Cl]⁻</strong> dengan 8 elektron valensi (7 elektron asli <span class='e-orig'>•</span> + 1 elektron dari Na <span class='e-gain'>×</span>).";
+    }, 3200));
   }
 
+  // 2. SIMULASI Na2O
   function setNa2O() {
     resetSim();
-    const na1 = createAtom('Na', '20%', '30%', 'metal');
-    const na2 = createAtom('Na', '20%', '70%', 'metal');
-    const o = createAtom('O', '80%', '50%', 'nonmetal');
+    const na1 = createAtom('Na', '22%', '30%', 'metal', 1);
+    const na2 = createAtom('Na', '22%', '70%', 'metal', 1);
+    const o = createAtom('O', '78%', '50%', 'nonmetal', 6);
     
-    const e1 = createElectron('26%', '30%');
-    const e2 = createElectron('26%', '70%');
+    const e1 = createElectron('28%', '30%');
+    const e2 = createElectron('28%', '70%');
 
-    status.innerHTML = "<strong>Tahap 1:</strong> Atom O membutuhkan 2 elektron. Karena setiap Na hanya bisa melepas 1 elektron, dibutuhkan 2 atom Na.";
+    status.innerHTML = "<strong>Tahap 1 (Konfigurasi Awal):</strong> Atom O memiliki 6 elektron valensi (butuh 2 elektron). Diperlukan 2 atom Na yang masing-masing melepas 1 elektron.";
 
     timeouts.push(setTimeout(() => {
-      e1.style.left = '76%'; e1.style.top = '45%';
-      e2.style.left = '76%'; e2.style.top = '55%';
-      status.innerHTML = "<strong>Tahap 2:</strong> Dua atom Na masing-masing menyerahkan 1 elektronnya kepada satu atom O.";
-    }, 1500));
+      e1.style.left = '72%'; e1.style.top = '45%';
+      e2.style.left = '72%'; e2.style.top = '55%';
+      status.innerHTML = "<strong>Tahap 2 (Serah Terima Elektron):</strong> Dua atom Na masing-masing mentransfer 1 elektronnya ke satu atom O.";
+    }, 1600));
 
     timeouts.push(setTimeout(() => {
       e1.style.opacity = '0'; e2.style.opacity = '0';
-      na1.innerHTML = 'Na<sup>+</sup>';
-      na2.innerHTML = 'Na<sup>+</sup>';
-      o.innerHTML = 'O<sup>2-</sup>';
-      
-      na1.style.left = '40%'; na1.style.top = '35%';
-      na2.style.left = '40%'; na2.style.top = '65%';
-      o.style.left = '58%'; o.style.top = '50%';
-      
-      showFormula("Rumus Senyawa: Na<sub>2</sub>O");
-      status.innerHTML = "<strong>Tahap 3:</strong> Terbentuk dua ion Na⁺ dan satu ion O²⁻. Rasio kation dan anion 2:1 menghasilkan rumus <strong>Na₂O</strong> (Natrium Oksida).";
-    }, 3000));
+      const lewisHTML = `
+        <div class="lewis-cation">Na<sup>+</sup></div>
+        ${buildAnionLewis('O', '2−', 2)}
+        <div class="lewis-cation">Na<sup>+</sup></div>
+      `;
+      showLewisResult(lewisHTML, "Struktur Lewis & Rumus Senyawa: Na<sub>2</sub>O", [na1, na2, o]);
+      status.innerHTML = "<strong>Tahap 3 (Struktur Lewis Ikatan Ion):</strong> Dua ion <strong>Na⁺</strong> mengapit ion <strong>[O]²⁻</strong> secara simetris. Ion oksida kini memiliki oktet penuh (6 <span class='e-orig'>•</span> + 2 <span class='e-gain'>×</span>).";
+    }, 3200));
   }
 
+  // 3. SIMULASI Al2O3
   function setAl2O3() {
     resetSim();
-    const al1 = createAtom('Al', '15%', '35%', 'metal');
-    const al2 = createAtom('Al', '15%', '65%', 'metal');
+    const al1 = createAtom('Al', '18%', '34%', 'metal', 3);
+    const al2 = createAtom('Al', '18%', '66%', 'metal', 3);
     
-    const o1 = createAtom('O', '85%', '25%', 'nonmetal');
-    const o2 = createAtom('O', '85%', '50%', 'nonmetal');
-    const o3 = createAtom('O', '85%', '75%', 'nonmetal');
+    const o1 = createAtom('O', '82%', '24%', 'nonmetal', 6);
+    const o2 = createAtom('O', '82%', '50%', 'nonmetal', 6);
+    const o3 = createAtom('O', '82%', '76%', 'nonmetal', 6);
 
-    // 3 elektron dari Al pertama
-    const e1_1 = createElectron('21%', '31%');
-    const e1_2 = createElectron('21%', '35%');
-    const e1_3 = createElectron('21%', '39%');
+    const e1_1 = createElectron('24%', '30%');
+    const e1_2 = createElectron('24%', '34%');
+    const e1_3 = createElectron('24%', '38%');
     
-    // 3 elektron dari Al kedua
-    const e2_1 = createElectron('21%', '61%');
-    const e2_2 = createElectron('21%', '65%');
-    const e2_3 = createElectron('21%', '69%');
+    const e2_1 = createElectron('24%', '62%');
+    const e2_2 = createElectron('24%', '66%');
+    const e2_3 = createElectron('24%', '70%');
 
-    status.innerHTML = "<strong>Tahap 1:</strong> Setiap atom Al melepas 3 elektron. Setiap atom O butuh 2 elektron. Untuk menyeimbangkan, butuh 2 Al (total 6 e⁻) dan 3 O (total butuh 6 e⁻).";
+    status.innerHTML = "<strong>Tahap 1 (Konfigurasi Awal):</strong> 2 atom Al (masing-masing melepas 3e⁻, total 6e⁻) bereaksi dengan 3 atom O (masing-masing 6e⁻ valensi, butuh 2e⁻ per atom).";
 
     timeouts.push(setTimeout(() => {
-      // 2 elektron dari Al1 ke O1
-      e1_1.style.left = '79%'; e1_1.style.top = '22%';
-      e1_2.style.left = '79%'; e1_2.style.top = '28%';
-      // 1 elektron dari Al1 ke O2
-      e1_3.style.left = '79%'; e1_3.style.top = '47%';
+      e1_1.style.left = '76%'; e1_1.style.top = '21%';
+      e1_2.style.left = '76%'; e1_2.style.top = '27%';
+      e1_3.style.left = '76%'; e1_3.style.top = '47%';
       
-      // 1 elektron dari Al2 ke O2
-      e2_1.style.left = '79%'; e2_1.style.top = '53%';
-      // 2 elektron dari Al2 ke O3
-      e2_2.style.left = '79%'; e2_2.style.top = '72%';
-      e2_3.style.left = '79%'; e2_3.style.top = '78%';
+      e2_1.style.left = '76%'; e2_1.style.top = '53%';
+      e2_2.style.left = '76%'; e2_2.style.top = '73%';
+      e2_3.style.left = '76%'; e2_3.style.top = '79%';
       
-      status.innerHTML = "<strong>Tahap 2:</strong> 6 elektron ditransfer silang secara merata dari atom-atom Al agar semua atom O mencapai konfigurasi oktet.";
-    }, 2000));
+      status.innerHTML = "<strong>Tahap 2 (Serah Terima Elektron):</strong> Total 6 elektron ditransfer dari dua atom Al menuju tiga atom O hingga semuanya mencapai oktet.";
+    }, 1800));
 
     timeouts.push(setTimeout(() => {
       [e1_1, e1_2, e1_3, e2_1, e2_2, e2_3].forEach(e => e.style.opacity = '0');
       
-      al1.innerHTML = 'Al<sup>3+</sup>';
-      al2.innerHTML = 'Al<sup>3+</sup>';
-      o1.innerHTML = 'O<sup>2-</sup>';
-      o2.innerHTML = 'O<sup>2-</sup>';
-      o3.innerHTML = 'O<sup>2-</sup>';
-      
-      al1.style.left = '42%'; al1.style.top = '35%';
-      al2.style.left = '42%'; al2.style.top = '65%';
-      
-      o1.style.left = '58%'; o1.style.top = '25%';
-      o2.style.left = '58%'; o2.style.top = '50%';
-      o3.style.left = '58%'; o3.style.top = '75%';
-      
-      showFormula("Rumus Senyawa: Al<sub>2</sub>O<sub>3</sub>");
-      status.innerHTML = "<strong>Tahap 3:</strong> Terbentuk ion Al³⁺ dan O²⁻. Rasio persilangan muatan 2:3 menghasilkan molekul stabil dengan rumus <strong>Al₂O₃</strong> (Aluminium Oksida).";
-    }, 4500));
+      const lewisHTML = `
+        <div class="lewis-col">
+          <div class="lewis-cation">Al<sup>3+</sup></div>
+          <div class="lewis-cation">Al<sup>3+</sup></div>
+        </div>
+        <div style="display: flex; gap: 8px; align-items: center;">
+          ${buildAnionLewis('O', '2−', 2)}
+          ${buildAnionLewis('O', '2−', 2)}
+          ${buildAnionLewis('O', '2−', 2)}
+        </div>
+      `;
+      showLewisResult(lewisHTML, "Struktur Lewis & Rumus Senyawa: Al<sub>2</sub>O<sub>3</sub>", [al1, al2, o1, o2, o3]);
+      status.innerHTML = "<strong>Tahap 3 (Struktur Lewis Ikatan Ion):</strong> Terbentuk 2 kation <strong>Al³⁺</strong> dan 3 anion <strong>[O]²⁻</strong> yang masing-masing dikelilingi 8 elektron valensi (6 <span class='e-orig'>•</span> + 2 <span class='e-gain'>×</span>).";
+    }, 3800));
   }
 </script>
