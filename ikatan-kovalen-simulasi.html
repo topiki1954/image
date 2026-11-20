@@ -1,100 +1,204 @@
-<div style="font-family: sans-serif; max-width: 500px; margin: 20px auto; padding: 15px; border: 1px solid #ddd; border-radius: 8px; background: #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
-  <h3 style="margin-top: 0; text-align: center; color: #006644;">Simulator Visualisasi Ikatan Kovalen</h3>
+<div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 680px; margin: 20px auto; padding: 18px; border: 1px solid #ddd; border-radius: 10px; background: #fff; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
+  <h3 style="margin-top: 0; text-align: center; color: #006644;">Simulator Ikatan Kovalen & Struktur Lewis</h3>
   
   <!-- Area Visualisasi Utama -->
-  <div style="height: 140px; background: #f9f9f9; border: 1px dashed #ccc; border-radius: 6px; position: relative; margin-bottom: 15px; overflow: hidden;">
-    
-    <!-- Atom A (Kiri) -->
-    <div id="atomA" style="position: absolute; left: 20%; top: 50%; transform: translateY(-50%); width: 45px; height: 45px; background: #3498db; color: white; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-weight: bold; font-size: 16px; transition: all 0.5s ease-in-out; z-index: 2;">A</div>
-    
-    <!-- Pasangan Elektron (Tengah) -->
-    <div id="electronPair" style="position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); display: flex; gap: 5px; transition: all 0.5s ease-in-out; z-index: 3;">
-      <div style="width: 8px; height: 8px; background: #e74c3c; border-radius: 50%;"></div>
-      <div style="width: 8px; height: 8px; background: #e74c3c; border-radius: 50%;"></div>
-    </div>
-    
-    <!-- Atom B (Kanan) -->
-    <div id="atomB" style="position: absolute; right: 20%; top: 50%; transform: translateY(-50%); width: 45px; height: 45px; background: #2ecc71; color: white; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-weight: bold; font-size: 16px; transition: all 0.5s ease-in-out; z-index: 2;">B</div>
-    
-    <!-- Indikator Dipol (Polar) -->
-    <span id="deltaPlus" style="position: absolute; left: 23%; top: 15%; color: #3498db; font-weight: bold; font-size: 16px; opacity: 0; transition: opacity 0.4s;">δ⁺</span>
-    <span id="deltaMinus" style="position: absolute; right: 23%; top: 15%; color: #e74c3c; font-weight: bold; font-size: 16px; opacity: 0; transition: opacity 0.4s;">δ⁻</span>
+  <div id="visArea" style="height: 250px; background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 8px; position: relative; margin-bottom: 15px; overflow: hidden;">
+    <!-- Elemen dinamis -->
   </div>
 
   <!-- Status Penjelasan -->
-  <div style="background: #eef7ff; padding: 12px; border-left: 4px solid #006644; border-radius: 4px; margin-bottom: 15px; min-height: 80px; font-size: 14px; line-height: 1.5; color: #333;">
-    <strong>Status:</strong> <span id="simStatus">Silakan pilih jenis ikatan di bawah untuk memulai simulasi.</span>
+  <div style="background: #eef7ff; padding: 12px 15px; border-left: 4px solid #006644; border-radius: 4px; margin-bottom: 15px; min-height: 80px; font-size: 14px; line-height: 1.5; color: #1e293b;">
+    <strong>Status:</strong> <span id="simStatus">Silakan pilih jenis ikatan di bawah untuk memulai simulasi penggunaan elektron bersama.</span>
   </div>
 
   <!-- Tombol Kontrol -->
   <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
-    <button onclick="setNonPolar()" style="padding: 10px; background: #4b5563; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: bold;">Kovalen Nonpolar</button>
-    <button onclick="setPolar()" style="padding: 10px; background: #4b5563; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: bold;">Kovalen Polar</button>
+    <button onclick="setNonPolar()" style="padding: 10px; background: #334155; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 13px; font-weight: bold; transition: 0.2s;">Kovalen Nonpolar (H₂)</button>
+    <button onclick="setPolar()" style="padding: 10px; background: #334155; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 13px; font-weight: bold; transition: 0.2s;">Kovalen Polar (HCl)</button>
   </div>
   <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-    <button onclick="setKoordinasi()" style="padding: 10px; background: #4b5563; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: bold;">Kovalen Koordinasi</button>
-    <button onclick="resetSim()" style="padding: 10px; background: #dc2626; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: bold;">Reset</button>
+    <button onclick="setKoordinasi()" style="padding: 10px; background: #334155; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 13px; font-weight: bold; transition: 0.2s;">Kovalen Koordinasi (NH₄⁺)</button>
+    <button onclick="resetSim()" style="padding: 9px; background: #dc2626; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 13px; font-weight: bold;">Reset Simulasi</button>
   </div>
 </div>
 
 <script>
-  const atomA = document.getElementById('atomA');
-  const atomB = document.getElementById('atomB');
-  const pair = document.getElementById('electronPair');
+  const visArea = document.getElementById('visArea');
   const status = document.getElementById('simStatus');
-  const dMinus = document.getElementById('deltaMinus');
-  const dPlus = document.getElementById('deltaPlus');
-  
-  // Variabel untuk menyimpan ID timer animasi
-  let animTimeout; 
+  let timeouts = [];
 
   function resetSim() {
-    clearTimeout(animTimeout); // Menghentikan animasi jika tombol lain diklik saat animasi berjalan
-    atomA.innerHTML = "A";
-    atomB.innerHTML = "B";
-    atomA.style.left = "20%";
-    atomB.style.right = "20%";
-    pair.style.left = "50%";
-    dMinus.style.opacity = "0";
-    dPlus.style.opacity = "0";
-    status.innerHTML = "Silakan pilih jenis ikatan di bawah untuk memulai simulasi.";
+    timeouts.forEach(clearTimeout);
+    timeouts = [];
+    visArea.innerHTML = '';
+    status.innerHTML = "Silakan pilih jenis ikatan di atas untuk memulai simulasi penggunaan elektron bersama.";
   }
 
+  // Membuat bola atom
+  function createAtom(symbol, x, y, type, valenceText) {
+    const el = document.createElement('div');
+    const bgColor = type === 'blue' ? '#2563eb' : (type === 'green' ? '#059669' : '#d97706');
+    el.style.cssText = `position: absolute; left: ${x}; top: ${y}; transform: translate(-50%, -50%); width: 48px; height: 48px; background: ${bgColor}; color: white; border-radius: 50%; display: flex; flex-direction: column; justify-content: center; align-items: center; font-weight: bold; font-size: 15px; transition: all 1s ease-in-out; z-index: 2; box-shadow: 0 2px 6px rgba(0,0,0,0.15);`;
+    el.innerHTML = `<span>${symbol}</span><span style="font-size: 9px; font-weight: normal; opacity: 0.9;">${valenceText}</span>`;
+    visArea.appendChild(el);
+    return el;
+  }
+
+  // Membuat elektron individual (bentuk bulat atau silang berdasarkan tipe)
+  function createElectron(startX, startY, type) {
+    const el = document.createElement('div');
+    if (type === 'cross') {
+      el.style.cssText = `position: absolute; left: ${startX}; top: ${startY}; transform: translate(-50%, -50%); width: 12px; height: 12px; color: #dc2626; font-size: 14px; font-weight: bold; display: flex; justify-content: center; align-items: center; line-height: 1; transition: all 1s ease-in-out; z-index: 3;`;
+      el.innerHTML = '×';
+    } else {
+      el.style.cssText = `position: absolute; left: ${startX}; top: ${startY}; transform: translate(-50%, -50%); width: 8px; height: 8px; background: #059669; border-radius: 50%; transition: all 1s ease-in-out; z-index: 3;`;
+    }
+    visArea.appendChild(el);
+    return el;
+  }
+
+  function showLewisResult(lewisHTML, formulaHTML, elementsToFade) {
+    elementsToFade.forEach(el => {
+      if (el) {
+        el.style.opacity = '0';
+        el.style.transform = 'translate(-50%, -50%) scale(0.7)';
+      }
+    });
+
+    const legend = document.createElement('div');
+    legend.style.cssText = `position: absolute; top: 8px; right: 12px; font-size: 11px; color: #475569; background: rgba(255,255,255,0.9); padding: 3px 8px; border-radius: 4px; border: 1px solid #e2e8f0;`;
+    legend.innerHTML = `<span style="color: #dc2626; font-weight: bold; font-size: 13px;">×</span> e⁻ Atom Kiri &nbsp;|&nbsp; <span style="color: #059669; font-weight: bold; font-size: 14px;">•</span> e⁻ Atom Kanan`;
+    visArea.appendChild(legend);
+
+    const container = document.createElement('div');
+    container.style.cssText = `position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%) scale(0.9); opacity: 0; transition: all 0.8s ease-out; display: flex; align-items: center; justify-content: center; background: #ffffff; padding: 14px 24px; border-radius: 10px; border: 1.5px solid #cbd5e1; box-shadow: 0 4px 10px rgba(0,0,0,0.06); z-index: 10;`;
+    container.innerHTML = lewisHTML;
+    visArea.appendChild(container);
+
+    const label = document.createElement('div');
+    label.innerHTML = formulaHTML;
+    label.style.cssText = `position: absolute; left: 50%; bottom: 12px; transform: translateX(-50%); font-size: 14px; font-weight: bold; color: #006644; opacity: 0; transition: opacity 0.8s; background: #ecfdf5; border: 1px solid #a7f3d0; padding: 4px 16px; border-radius: 20px; white-space: nowrap;`;
+    visArea.appendChild(label);
+
+    setTimeout(() => {
+      container.style.opacity = '1';
+      container.style.transform = 'translate(-50%, -50%) scale(1)';
+      label.style.opacity = '1';
+    }, 150);
+  }
+
+  // 1. KOVALEN NONPOLAR (H2)
   function setNonPolar() {
     resetSim();
-    atomA.innerHTML = "H";
-    atomB.innerHTML = "H";
-    pair.style.left = "50%";
-    status.innerHTML = "<strong>Kovalen Nonpolar (H—H):</strong> Pasangan elektron berada tepat di tengah-tengah kedua inti atom. Keelektronegatifan kedua atom sama besar, sehingga tidak terbentuk kutub muatan (netral).";
+    const atomA = createAtom('H', '20%', '50%', 'blue', '(1e⁻)');
+    const atomB = createAtom('H', '80%', '50%', 'green', '(1e⁻)');
+    const eA = createElectron('26%', '50%', 'cross');
+    const eB = createElectron('74%', '50%', 'dot');
+
+    status.innerHTML = "<strong>Tahap 1:</strong> Dua atom Hidrogen masing-masing memiliki 1 elektron valensi dan butuh 1 elektron lagi untuk stabil (duplet).";
+
+    timeouts.push(setTimeout(() => {
+      atomA.style.left = '40%'; atomB.style.left = '60%';
+      eA.style.left = '48%'; eB.style.left = '52%';
+      status.innerHTML = "<strong>Tahap 2:</strong> Kedua atom mendekat dan <strong>memakai elektron secara bersama-sama</strong> di tengah.";
+    }, 1500));
+
+    timeouts.push(setTimeout(() => {
+      const lewisHTML = `
+        <div style="font-family: 'Times New Roman', serif; font-size: 24px; font-weight: bold; color: #1e293b; display: flex; align-items: center; gap: 8px;">
+          H <div style="display: flex; gap: 4px; font-size: 20px; align-items: center;"><span style="color:#dc2626">×</span><span style="color:#059669">•</span></div> H
+        </div>
+      `;
+      showLewisResult(lewisHTML, "Rumus Molekul: <strong>H₂</strong> (Kovalen Nonpolar)", [atomA, atomB, eA, eB]);
+      status.innerHTML = "<strong>Tahap 3 (Struktur Lewis):</strong> Pasangan elektron berada <strong>tepat di tengah</strong> karena daya tarik (keelektronegatifan) kedua atom H sama kuat. Tidak ada kutub yang terbentuk (Nonpolar).";
+    }, 3500));
   }
 
+  // 2. KOVALEN POLAR (HCl)
   function setPolar() {
     resetSim();
-    atomA.innerHTML = "H";
-    atomB.innerHTML = "Cl";
-    pair.style.left = "62%";
-    dMinus.style.opacity = "1";
-    dPlus.style.opacity = "1";
-    status.innerHTML = "<strong>Kovalen Polar (H—Cl):</strong> Pasangan elektron tertarik lebih kuat ke arah atom Cl karena keelektronegatifannya lebih tinggi. Hal ini membentuk kutub negatif parsial (δ⁻) pada Cl dan kutub positif parsial (δ⁺) pada H.";
+    const atomA = createAtom('H', '20%', '50%', 'blue', '(1e⁻)');
+    const atomB = createAtom('Cl', '80%', '50%', 'green', '(7e⁻)');
+    const eA = createElectron('26%', '50%', 'cross');
+    const eB = createElectron('74%', '50%', 'dot');
+
+    status.innerHTML = "<strong>Tahap 1:</strong> Atom H memiliki 1 e⁻ valensi, sedangkan Cl memiliki 7 e⁻ valensi. Keduanya saling menyumbang 1 elektron untuk dipakai bersama.";
+
+    timeouts.push(setTimeout(() => {
+      atomA.style.left = '30%'; atomB.style.left = '70%';
+      // Elektron ditarik sangat condong ke arah Cl (di posisi 60% dan 64%)
+      eA.style.left = '60%'; eB.style.left = '64%';
+      status.innerHTML = "<strong>Tahap 2:</strong> Ikatan kovalen terbentuk. Karena Cl lebih elektronegatif, <strong>pasangan elektron tertarik lebih dekat ke arah Cl</strong>.";
+    }, 1500));
+
+    timeouts.push(setTimeout(() => {
+      const lewisHTML = `
+        <div style="position: absolute; left: 8px; top: -15px; color: #2563eb; font-weight: bold; font-family: sans-serif; font-size: 16px;">δ⁺</div>
+        <div style="position: absolute; right: 8px; top: -15px; color: #dc2626; font-weight: bold; font-family: sans-serif; font-size: 16px;">δ⁻</div>
+        
+        <div style="font-family: 'Times New Roman', serif; font-size: 24px; font-weight: bold; color: #1e293b; display: flex; align-items: center;">
+          <!-- Atom H diberi jarak (width) yang lebih lebar agar menjauh dari elektron -->
+          <div style="width: 38px; text-align: left;">H</div>
+          
+          <!-- Pasangan Elektron Ikatan (menempel ketat pada Cl) -->
+          <div style="display: flex; gap: 4px; font-size: 20px; align-items: center; padding-right: 4px;">
+            <span style="color:#dc2626">×</span><span style="color:#059669">•</span>
+          </div>
+          
+          <!-- Atom Cl dengan 6 Elektron Bebas -->
+          <div style="display: grid; grid-template-columns: 12px 26px 12px; grid-template-rows: 13px 26px 13px; align-items: center; justify-items: center;">
+            <div style="grid-column: 2; grid-row: 1; font-size: 14px; letter-spacing: 2px; line-height: 1; color:#059669;">••</div>
+            <div style="grid-column: 2; grid-row: 2; font-size: 24px; color: #1e293b;">Cl</div>
+            <div style="grid-column: 3; grid-row: 2; font-size: 14px; line-height: 0.75; display: flex; flex-direction: column; color:#059669;"><span>•</span><span>•</span></div>
+            <div style="grid-column: 2; grid-row: 3; font-size: 14px; letter-spacing: 2px; line-height: 1; color:#059669;">••</div>
+          </div>
+        </div>
+      `;
+      showLewisResult(lewisHTML, "Rumus Molekul: <strong>HCl</strong> (Kovalen Polar)", [atomA, atomB, eA, eB]);
+      status.innerHTML = "<strong>Tahap 3 (Struktur Lewis):</strong> Karena elektron ikatan (<span style='color:#dc2626'>×</span><span style='color:#059669'>•</span>) lebih condong ke Cl, terbentuk kutub negatif parsial (<strong>δ⁻</strong>) pada Cl dan kutub positif parsial (<strong>δ⁺</strong>) pada H.";
+    }, 3500));
   }
 
+  // 3. KOVALEN KOORDINASI (NH4+)
   function setKoordinasi() {
     resetSim();
-    atomA.innerHTML = "NH<sub>3</sub>"; // Menggunakan <sub> agar angka 3 proporsional di bawah
-    atomB.innerHTML = "H<sup>+</sup>";
+    const atomA = createAtom('NH₃', '20%', '50%', 'blue', '(punya e⁻ bebas)');
+    const atomB = createAtom('H⁺', '80%', '50%', 'orange', '(kosong, 0e⁻)');
     
-    // TAHAP 1 (t = 0s): Elektron menempel pada NH3, H+ masih berjarak
-    pair.style.left = "31%"; // Posisi nempel persis di sebelah kanan Atom A
-    atomB.style.right = "20%"; // H+ belum bergerak dari posisi awal
-    
-    status.innerHTML = "<strong>Tahap 1:</strong> Atom N pada NH₃ memiliki pasangan elektron bebas (elektron menempel di N). Ion H⁺ datang mendekat tanpa membawa elektron.";
+    // Dua titik elektron dari NH3 (keduanya dot)
+    const e1 = createElectron('28%', '47%', 'dot');
+    const e2 = createElectron('28%', '53%', 'dot');
 
-    // TAHAP 2 (t = 1.5s): H+ mendekat, elektron berpindah ke tengah
-    animTimeout = setTimeout(() => {
-      pair.style.left = "42%"; // Elektron bergeser ke tengah
-      atomB.style.right = "36%"; // H+ mendekat agar nempel dengan elektron
+    status.innerHTML = "<strong>Tahap 1:</strong> Molekul NH₃ memiliki 1 pasangan elektron bebas (belum berikatan). Ion H⁺ datang mendekat <strong>tanpa membawa elektron satupun</strong>.";
+
+    timeouts.push(setTimeout(() => {
+      atomA.style.left = '40%'; atomB.style.left = '60%';
+      // Elektron ditarik ke tengah untuk dipakai bersama
+      e1.style.left = '50%'; e2.style.left = '50%';
+      status.innerHTML = "<strong>Tahap 2:</strong> Pasangan elektron milik NH₃ ditarik ke tengah untuk digunakan bersama dengan ion H⁺.";
+    }, 1800));
+
+    timeouts.push(setTimeout(() => {
+      const leftBracket = `<svg width="10" height="50" viewBox="0 0 10 50" style="display: block;"><polyline points="9,2 2,2 2,48 9,48" fill="none" stroke="#0f172a" stroke-width="2.5" stroke-linecap="square"/></svg>`;
+      const rightBracket = `<svg width="10" height="50" viewBox="0 0 10 50" style="display: block;"><polyline points="1,2 8,2 8,48 1,48" fill="none" stroke="#0f172a" stroke-width="2.5" stroke-linecap="square"/></svg>`;
       
-      status.innerHTML = "<strong>Tahap 2 (Kovalen Koordinasi):</strong> Pasangan elektron lepas ke tengah untuk digunakan bersama. Sepasang elektron ini <strong>sepenuhnya berasal dari atom donor (N)</strong>.";
-    }, 1500); // Penundaan 1,5 detik
+      const lewisHTML = `
+        <div style="display: inline-flex; align-items: flex-start;">
+          <div style="display: inline-flex; align-items: center; gap: 4px; font-family: 'Times New Roman', serif; font-size: 22px; font-weight: bold; color: #1e293b;">
+            ${leftBracket}
+            <div style="display: flex; align-items: center; gap: 10px; padding: 0 4px;">
+              <div>H<sub>3</sub>N</div>
+              <!-- Kedua elektron ditandai dengan dot karena berasal dari atom donor yang sama (N) -->
+              <div style="display: flex; flex-direction: column; line-height: 0.4; font-size: 20px; color:#059669;"><span>•</span><span>•</span></div>
+              <div>H</div>
+            </div>
+            ${rightBracket}
+          </div>
+          <div style="font-family: 'Times New Roman', serif; font-size: 16px; font-weight: bold; margin-left: 3px; margin-top: -5px;">+</div>
+        </div>
+      `;
+      showLewisResult(lewisHTML, "Rumus Ion: <strong>NH₄⁺</strong> (Kovalen Koordinasi)", [atomA, atomB, e1, e2]);
+      status.innerHTML = "<strong>Tahap 3 (Struktur Lewis):</strong> Terbentuk ikatan <strong>Kovalen Koordinasi</strong> di mana pasangan elektron yang digunakan bersama (<span style='color:#059669'>••</span>) <strong>sepenuhnya berasal dari satu atom saja</strong> (dari atom N).";
+    }, 4000));
   }
 </script>
